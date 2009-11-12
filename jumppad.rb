@@ -146,6 +146,86 @@ OPTS
 
 commit "rspec"
 
+file "spec/support/macros.rb", <<-RUBY
+ActiveSupport::TestCase.class_eval do
+
+  def default_action(action)
+    method = {
+      :new     => :get,
+      :create  => :post,
+      :index   => :get,
+      :show    => :get,
+      :edit    => :get,
+      :update  => :put,
+      :destroy => :delete
+    }[action]
+
+    @params ||= {
+      :new     => {},
+      :create  => proc {{@param => Factory.attributes_for(@factory)}},
+      :index   => {},
+      :show    => proc {{:id => @object.id}},
+      :edit    => proc {{:id => @object.id}},
+      :update  => proc {{:id => @object.id, @param => Factory.attributes_for(@factory)}},
+      :destroy => proc {{:id => @object.id}}
+    }[action]
+    @params = @params.call if @params.is_a?(Proc)
+
+    # puts "#{method.to_s.upcase} #{action} #{@params.inspect}"
+    send method, action, @params
+  end
+
+  def eval_request(action = nil)
+    meth = "do_#{action || @action}"
+    if respond_to?(meth)
+      send(meth)
+    else
+      default_action(action || @action)
+    end
+  end
+
+  def self.describe_action(action, &block)
+    describe(action) do
+      before(:each) {@action = action}
+      instance_eval(&block)
+    end
+  end
+
+  def self.it_should_redirect_to(url = nil, &block)
+    it "should redirect to #{url}" do
+      eval_request
+      if block
+        url = instance_eval(&block)
+      end
+      should redirect_to(url)
+    end
+  end
+
+  def self.it_should_require_login
+    it_should_redirect_to "/login"
+  end
+
+  def self.it_should_render_template(template)
+    it "should render template #{template}" do
+      eval_request
+      should render_template(template)
+    end
+  end
+
+  def self.it_should_fail_to_find
+    it "should throw ActiveRecord::RecordNotFound" do
+      proc {eval_request}.should raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
+
+  def self.it_should_not_route(action)
+    it "should not route #{action}" do
+      proc {eval_request(action)}.should raise_error(ActionController::RoutingError)
+    end
+  end
+end
+RUBY
+
 # HAML
 gem 'haml', :version => '>= 2.0.9'
 
@@ -196,12 +276,20 @@ braid_plugin "git://github.com/rakuto/jrails_in_place_editing"
 braid_plugin "git://github.com/augustl/live-validations.git"
 braid_plugin "git://github.com/redinger/validation_reflection.git"
 
-commit "jquery validation"
+file "config/initializers/live_validations.rb", <<-RUBY
+LiveValidations.use :jquery_validations, :default_valid_message => "", :validate_on_blur => true
+RUBY
+commit "live validation"
 
 # FORMTASTIC
 gem "formtastic", :source => 'http://gemcutter.org/'
-generate(:formtastic_stylesheets)
-commit "formtastic stylesheets"
+generate(:formtastic)
+File.open("config/initializers/formtastic.rb", "a") do |file|
+  file.write <<-RUBY
+Formtastic::SemanticFormBuilder.i18n_lookups_by_default = true
+  RUBY
+end
+commit "formtastic"
 
 # MAIL handling in development
 gem "inaction_mailer", :lib => 'inaction_mailer/force_load', :source => 'http://gemcutter.org', :env => 'development'
@@ -217,9 +305,10 @@ end
 RAKE
 
 # GEMS
-gem 'will_paginate', :source => 'http://gemcutter.org/'
-gem 'whenever', :lib => false, :source => 'http://gemcutter.org/'
+gem 'will_paginate', :source => 'http://gemcutter.org'
+gem 'whenever', :lib => false, :source => 'http://gemcutter.org'
 gem "ffmike-query_trace", :lib => 'query_trace', :source => 'http://gems.github.com', :env => 'development'
+gem "factory_girl", :source => 'http://gemcutter.org', :env => "test"
 
 commit "gems"
 
@@ -307,7 +396,6 @@ commit "rack-bug"
 
 # PLUGINS
 
-braid_plugin "git://github.com/thoughtbot/factory_girl.git"
 braid_plugin "git://github.com/relevance/log_buddy.git"
 braid_plugin "git://github.com/josevalim/inherited_resources.git"
 braid_plugin "git://github.com/thoughtbot/paperclip.git"
@@ -318,6 +406,11 @@ braid_plugin "git://github.com/astrails/let_my_controller_go.git"
 
 # AUTH
 gem 'authlogic', :version => '2.1.1'
+
+gsub_file "spec/spec_helper.rb", "require 'spec/rails'", <<-RUBY
+require 'spec/rails'
+require 'authlogic/test_case'
+RUBY
 commit "authlogic"
 
 braid_plugin "git://github.com/astrails/astrails-user-auth"
