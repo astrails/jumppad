@@ -236,18 +236,18 @@ commit "static pages"
 
 # LAYOUT
 
-file "app/layouts/_flashes.html.haml", <<-HAML
+file "app/views/layouts/_flashes.html.haml", <<-HAML
 #flash
   - flash.each do |key, value|
     %div{:id => "flash_\#{key}", :class => key}= value
 HAML
 
-file "app/layouts/application.html.haml", <<-HAML
+file "app/views/layouts/application.html.haml", <<-HAML
 %html{ "xml:lang" => "en", :lang => "en", :xmlns => "http://www.w3.org/1999/xhtml" }
   %head
     %meta{ :content => "text/html; charset=utf-8", "http-equiv" => "Content-type" }
-    %title!= @page_title || h(controller.action_name) %>
-    != stylesheet_link_tag 'formtastic', 'formtastic_changes', 'application', :media => 'all' %>
+    %title!= @page_title || h(controller.action_name)
+    != stylesheet_link_tag 'formtastic', 'formtastic_changes', 'application', :media => 'all'
     != javascript_include_tag "jquery.min.js", "jquery-ui.min.js", "jquery.validate.min.js", "application"
     != yield :head
   %body
