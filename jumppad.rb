@@ -52,6 +52,7 @@ coverage
 public/javascripts/*_[0-9]*.js
 public/stylesheets/*_[0-9]*.css
 public/attachments
+attic/
 GITIGNORE
 
 file "config/database.yml", <<-DB
@@ -273,6 +274,16 @@ file "app/views/layouts/application.html.haml", <<-HAML
     != javascript_include_tag "jquery.min.js", "jquery-ui.min.js", "jquery.validate.min.js", "application"
     != yield :head
   %body
+    .header
+      - if logged_in?
+        Hello
+        != link_to h(current_user.name), edit_user_path(current_user)
+        [
+        != link_to "logout", user_session_path, :method => :delete
+        ]
+      - else
+        != link_to "login", login_path
+        != link_to "register", signup_path
     .container
       != render :partial => 'layouts/flashes'
       != yield
