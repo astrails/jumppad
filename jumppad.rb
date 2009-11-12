@@ -396,7 +396,7 @@ environment "config.middleware.use 'Rack::Bug', :password => '#{RACK_BUG_PASSWOR
 commit "rack-bug"
 
 # DEBUG
-config.gem "ruby-debug", :library => false
+gem "ruby-debug", :library => false
 environment "require 'ruby-debug'", :env => :development
 environment "require 'ruby-debug'", :env => :test
 commit "ruby-debug"
