@@ -219,6 +219,13 @@ ActiveSupport::TestCase.class_eval do
     end
   end
 
+  def self.it_should_assign(var)
+    it "should assign \#{var}" do
+      eval_request
+      assigns[var].should_not be_nil
+    end
+  end
+
   def self.it_should_fail_to_find
     it "should throw ActiveRecord::RecordNotFound" do
       proc {eval_request}.should raise_error(ActiveRecord::RecordNotFound)
