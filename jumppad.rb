@@ -151,6 +151,10 @@ commit "rspec"
 file "spec/support/macros.rb", <<-RUBY
 ActiveSupport::TestCase.class_eval do
 
+  def object
+    @object || Factory.build(@factory)
+  end
+
   def default_action(action)
     method = {
       :new     => :get,
@@ -164,12 +168,14 @@ ActiveSupport::TestCase.class_eval do
 
     @params ||= {
       :new     => {},
-      :create  => proc {{@param => Factory.attributes_for(@factory)}},
+      :create  => proc {
+        raise "undefined @param" unless @param
+        {@param => Factory.attributes_for(@factory)}},
       :index   => {},
-      :show    => proc {{:id => @object.id}},
-      :edit    => proc {{:id => @object.id}},
-      :update  => proc {{:id => @object.id, @param => Factory.attributes_for(@factory)}},
-      :destroy => proc {{:id => @object.id}}
+      :show    => proc {{:id => object.id}},
+      :edit    => proc {{:id => object.id}},
+      :update  => proc {{:id => object.id, @param => Factory.attributes_for(@factory)}},
+      :destroy => proc {{:id => object.id}}
     }[action]
     @params = @params.call if @params.is_a?(Proc)
 
