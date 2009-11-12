@@ -170,7 +170,7 @@ ActiveSupport::TestCase.class_eval do
       :new     => {},
       :create  => proc {
         raise "undefined @param" unless @param
-        {@param => Factory.attributes_for(@factory)}},
+        {@param => Factory.attributes_for(@factory).except(:skip_session_maintenance)}},
       :index   => {},
       :show    => proc {{:id => object.id}},
       :edit    => proc {{:id => object.id}},
