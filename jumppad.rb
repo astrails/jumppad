@@ -11,8 +11,12 @@ raise "missing configuration" if [HOPTOAD_API_KEY, RACK_BUG_PASSWORD].any?(&:bla
 
 NAME = File.basename(File.expand_path(root))
 
+def die(message = caller.first)
+  raise "\nERROR: #{message}\n"
+end
+
 def braid_plugin repo
-  run "braid add -p #{repo} | tee -a log/braid.log 2>&1"
+  run("braid add -p #{repo} | tee -a log/braid.log 2>&1") or die("failed to braid #{repo}")
 end
 
 def commit(comment)
@@ -28,14 +32,12 @@ def github_file(repo, path, version = "master")
   download("http://github.com/#{repo}/raw/#{version}/#{path}")
 end
 
-
-
 ##### TEMPLATE #####
 
-run "rmdir tmp/{pids,sessions,sockets,cache}"
-run "rm README log/*.log public/index.html public/images/rails.png public/favicon.ico"
-run("find . \\( -type d -empty \\) -and \\( -not -regex ./\\.git.* \\) -exec touch {}/.gitignore \\;")
-git :init
+run "rmdir tmp/{pids,sessions,sockets,cache}" or die
+run "rm README log/*.log public/index.html public/images/rails.png public/favicon.ico" or die
+run("find . \\( -type d -empty \\) -and \\( -not -regex ./\\.git.* \\) -exec touch {}/.gitignore \\;") or die
+git(:init)
 
 file '.gitignore', <<-GITIGNORE
 log/*.log
@@ -171,12 +173,11 @@ ActiveSupport::TestCase.class_eval do
     }[action]
     @params = @params.call if @params.is_a?(Proc)
 
-    # puts "#{method.to_s.upcase} #{action} #{@params.inspect}"
     send method, action, @params
   end
 
   def eval_request(action = nil)
-    meth = "do_#{action || @action}"
+    meth = "do_\#{action || @action}"
     if respond_to?(meth)
       send(meth)
     else
@@ -192,7 +193,7 @@ ActiveSupport::TestCase.class_eval do
   end
 
   def self.it_should_redirect_to(url = nil, &block)
-    it "should redirect to #{url}" do
+    it "should redirect to \#{url}" do
       eval_request
       if block
         url = instance_eval(&block)
@@ -206,7 +207,7 @@ ActiveSupport::TestCase.class_eval do
   end
 
   def self.it_should_render_template(template)
-    it "should render template #{template}" do
+    it "should render template \#{template}" do
       eval_request
       should render_template(template)
     end
@@ -219,7 +220,7 @@ ActiveSupport::TestCase.class_eval do
   end
 
   def self.it_should_not_route(action)
-    it "should not route #{action}" do
+    it "should not route \#{action}" do
       proc {eval_request(action)}.should raise_error(ActionController::RoutingError)
     end
   end
@@ -247,7 +248,7 @@ HoptoadNotifier.configure do |config|
 end
 RUBY
 
-gsub_file "app/controllers/application_controller.rb", "end$", <<-RUBY
+gsub_file "app/controllers/application_controller.rb", "end$", <<-RUBY or die
   include HoptoadNotifier::Catcher
 end
 RUBY
@@ -282,8 +283,8 @@ RUBY
 commit "live validation"
 
 # FORMTASTIC
-gem "formtastic", :source => 'http://gemcutter.org/'
-generate(:formtastic)
+gem "formtastic", :source => 'http://gemcutter.org'
+generate :formtastic
 File.open("config/initializers/formtastic.rb", "a") do |file|
   file.write <<-RUBY
 Formtastic::SemanticFormBuilder.i18n_lookups_by_default = true
@@ -393,6 +394,12 @@ commit "layout"
 braid_plugin "git://github.com/brynary/rack-bug.git"
 environment "config.middleware.use 'Rack::Bug', :password => '#{RACK_BUG_PASSWORD}'"
 commit "rack-bug"
+
+# DEBUG
+config.gem "ruby-debug", :library => false
+environment "require 'ruby-debug'", :env => :development
+environment "require 'ruby-debug'", :env => :test
+commit "ruby-debug"
 
 # PLUGINS
 
