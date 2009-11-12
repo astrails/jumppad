@@ -202,10 +202,22 @@ gem "formtastic", :source => 'http://gemcutter.org/'
 generate(:formtastic_stylesheets)
 commit "formtastic stylesheets"
 
+# MAIL handling in development
+gem "inaction_mailer", :lib => 'inaction_mailer/force_load', :source => 'http://gemcutter.org', :env => 'development'
+rakefile 'mail.rake', <<-RAKE
+namespace :mail do
+  desc "Remove all files from tmp/sent_mails"
+  task :clear do
+    FileList["tmp/sent_mails/*"].each do |mail_file|
+      File.delete(mail_file)
+    end
+  end
+end
+RAKE
+
 # GEMS
 gem 'will_paginate', :source => 'http://gemcutter.org/'
 gem 'whenever', :lib => false, :source => 'http://gemcutter.org/'
-gem "inaction_mailer", :lib => 'inaction_mailer/force_load', :source => 'http://gemcutter.org', :env => 'development'
 gem "ffmike-query_trace", :lib => 'query_trace', :source => 'http://gems.github.com', :env => 'development'
 
 commit "gems"
@@ -302,23 +314,3 @@ generate 'astrails_user_auth'
 rake('db:migrate')
 commit 'astrails_user_auth'
 
-
-
-
-
-
-
-__END__
-
-
-
-rakefile 'mail.rake', <<-END
-namespace :mail do
-  desc "Remove all files from tmp/sent_mails"
-  task :clear do
-    FileList["tmp/sent_mails/*"].each do |mail_file|
-      File.delete(mail_file)
-    end
-  end
-end
-END
