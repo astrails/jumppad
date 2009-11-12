@@ -116,6 +116,16 @@ Dir[Rails.root.join('lib', '*.rb')].each do |f|
 end
 RUBY
 
+file "config/locales/en.yml", <<-YAML
+en:
+  flash:
+    user_session:
+      create:
+        notice: "Logged in"
+      destroy:
+        notice: "Goodbye"
+YAML
+
 commit "basic files"
 
 # RSPEC
