@@ -412,7 +412,9 @@ commit "layout"
 
 # RACK BUG
 braid_plugin "git://github.com/brynary/rack-bug.git"
-environment "config.middleware.use 'Rack::Bug', :password => '#{RACK_BUG_PASSWORD}'"
+# template adds lines in reversed order so we first use then define rpass
+environment "config.middleware.use 'Rack::Bug', :password => rpass"
+environment "rpass = (GlobalPreference.get(:rack_bug_password) || '#{RACK_BUG_PASSWORD}') rescue '#{RACK_BUG_PASSWORD}'"
 commit "rack-bug"
 
 # DEBUG
