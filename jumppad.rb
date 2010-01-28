@@ -431,7 +431,7 @@ braid_plugin "git://github.com/relevance/log_buddy.git"
 braid_plugin "git://github.com/josevalim/inherited_resources.git"
 braid_plugin "git://github.com/astrails/inherited_resources_pagination.git"
 braid_plugin "git://github.com/thoughtbot/paperclip.git"
-braid_plugin "git://github.com/ryanb/trusted-params.git"
+braid_plugin "git://github.com/astrails/trusted-params.git"
 
 braid_plugin "git://github.com/astrails/restart_controller.git"
 braid_plugin "git://github.com/astrails/let_my_controller_go.git"
