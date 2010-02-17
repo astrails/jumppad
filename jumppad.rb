@@ -314,6 +314,9 @@ Formtastic::SemanticFormBuilder.i18n_lookups_by_default = true
 end
 commit "formtastic"
 
+# Time freezing it tests
+gem 'timecop', :env => 'test'
+
 # MAIL handling in development
 gem "inaction_mailer", :lib => 'inaction_mailer/force_load', :source => 'http://gemcutter.org', :env => 'development'
 rakefile 'mail.rake', <<-RAKE
