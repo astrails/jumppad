@@ -439,8 +439,12 @@ commit "ruby-debug"
 
 # PLUGINS
 
+gem 'has_scope'
+gem 'inherited_resources', :version => '1.0.0'
+gem 'responders', :version => '0.4'
+commit 'inherited_resources'
+
 braid_plugin "git://github.com/relevance/log_buddy.git"
-braid_plugin "git://github.com/josevalim/inherited_resources.git"
 braid_plugin "git://github.com/astrails/inherited_resources_pagination.git"
 braid_plugin "git://github.com/thoughtbot/paperclip.git"
 braid_plugin "git://github.com/astrails/trusted-params.git"
