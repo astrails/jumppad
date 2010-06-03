@@ -150,6 +150,15 @@ OPTS
 
 commit "rspec"
 
+file "lib/tasks/rcov.rake", <<-RUBY
+require 'rcov/rcovtask'
+Rcov::RcovTask.new do |t|
+  t.test_files = FileList['test/test*.rb']
+  # t.verbose = true     # uncomment to see the executed command
+end
+RUBY
+commit "rcov.rake"
+
 file "spec/support/macros.rb", <<-RUBY
 ActiveSupport::TestCase.class_eval do
 
