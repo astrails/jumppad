@@ -452,17 +452,19 @@ braid_plugin "git://github.com/astrails/trusted-params.git"
 braid_plugin "git://github.com/astrails/restart_controller.git"
 braid_plugin "git://github.com/astrails/let_my_controller_go.git"
 
-# AUTH
-gem 'authlogic', :version => '2.1.1'
 
-gsub_file "spec/spec_helper.rb", "require 'spec/rails'", <<-RUBY
+unless ENV['NOAUTH']
+  # AUTH
+  gem 'authlogic', :version => '2.1.1'
+
+  gsub_file "spec/spec_helper.rb", "require 'spec/rails'", <<-RUBY
 require 'spec/rails'
 require 'authlogic/test_case'
-RUBY
-commit "authlogic"
+  RUBY
+  commit "authlogic"
 
-braid_plugin "git://github.com/astrails/astrails-user-auth"
-generate 'astrails_user_auth'
-rake('db:migrate')
-commit 'astrails_user_auth'
-
+  braid_plugin "git://github.com/astrails/astrails-user-auth"
+  generate 'astrails_user_auth'
+  rake('db:migrate')
+  commit 'astrails_user_auth'
+end
