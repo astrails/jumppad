@@ -133,8 +133,8 @@ YAML
 commit "basic files"
 
 # RSPEC
-gem 'rspec', :version => '1.2.6', :lib => false
-gem 'rspec-rails', :version => '1.2.6', :lib => false
+gem 'rspec', :version => '1.3.0', :lib => false
+gem 'rspec-rails', :version => '1.3.2', :lib => false
 gem 'mocha', :version => '0.9.8', :library => false
 generate "rspec"
 
