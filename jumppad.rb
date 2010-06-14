@@ -135,7 +135,7 @@ commit "basic files"
 # RSPEC
 gem 'rspec', :version => '1.3.0', :lib => false
 gem 'rspec-rails', :version => '1.3.2', :lib => false
-gem 'mocha', :version => '0.9.8', :library => false
+#gem 'mocha', :version => '0.9.8', :library => false
 generate "rspec"
 
 run "rm -rf test"
