@@ -259,9 +259,7 @@ end
 RUBY
 
 # HAML
-gem 'haml', :version => '>= 2.0.9'
-
-run "haml --rails ."
+gem 'haml', :version => '>= 3.0.12'
 
 initializer "haml.rb", <<-RUBY
 Haml::Template.options[:escape_html] = true
