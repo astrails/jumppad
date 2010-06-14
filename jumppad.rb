@@ -1,12 +1,22 @@
-require 'open-uri'
-require 'ruby-debug'
+#### START CONFIG ##########
 
-# CONFIG
-
+NO_AUTH = false # skip the authlogic config part
 HOPTOAD_API_KEY = ""
 RACK_BUG_PASSWORD = ""
 
-raise "missing configuration" if [HOPTOAD_API_KEY, RACK_BUG_PASSWORD].any?(&:blank?)
+#### END CONFIGURATION #####
+
+require 'open-uri'
+require 'ruby-debug'
+
+raise "missing rack-bug configuration" if RACK_BUG_PASSWORD.blank?
+
+if HOPTOAD_API_KEY.blank?
+	puts "WARNING: No HOPTOAD SUPPORT. Please set HOPTOAD_API_KEY"
+	NO_HOPTOAD = true
+else
+	NO_HOPTOAD = false
+end
 
 ##### HELPERS #####
 
@@ -267,22 +277,25 @@ RUBY
 
 commit 'haml'
 
-# HOPTOAD
-braid_plugin "git://github.com/thoughtbot/hoptoad_notifier.git"
+#
+unless NO_HOPTOAD
+	# HOPTOAD
+	braid_plugin "git://github.com/thoughtbot/hoptoad_notifier.git"
 
-initializer "hoptoad.rb", <<-RUBY
+	initializer "hoptoad.rb", <<-RUBY
 HoptoadNotifier.configure do |config|
-  config.api_key = '#{HOPTOAD_API_KEY}'
-  config.environment_filters << 'rack-bug.*'
+	config.api_key = '#{HOPTOAD_API_KEY}'
+	config.environment_filters << 'rack-bug.*'
 end
-RUBY
+	RUBY
 
-gsub_file "app/controllers/application_controller.rb", "end$", <<-RUBY or die
-  include HoptoadNotifier::Catcher
+	gsub_file "app/controllers/application_controller.rb", "end$", <<-RUBY or die
+	include HoptoadNotifier::Catcher
 end
-RUBY
+	RUBY
 
-commit 'added hoptoad_notifier plugin'
+	commit 'added hoptoad_notifier plugin'
+end
 
 # JQUERY & JRAILS
 run "rm -f public/javascripts/*"
@@ -451,7 +464,7 @@ braid_plugin "git://github.com/astrails/restart_controller.git"
 braid_plugin "git://github.com/astrails/let_my_controller_go.git"
 
 
-unless ENV['NOAUTH']
+unless NO_AUTH
   # AUTH
   gem 'authlogic', :version => '2.1.1'
 
