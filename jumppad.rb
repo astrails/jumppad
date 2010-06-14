@@ -301,6 +301,22 @@ file "app/views/layouts/_flashes.html.haml", <<-HAML
     %div{:id => "flash_\#{key}", :class => key}= value
 HAML
 
+unless NO_AUTH
+  login_header = <<-HAML
+      - if logged_in?
+        Hello
+        != link_to h(current_user.name), edit_user_path(current_user)
+        [
+        != link_to "logout", user_session_path, :method => :delete
+        ]
+      - else
+        != link_to "login", login_path
+        != link_to "register", signup_path
+HAML
+else
+  login_header = nil
+end
+
 file "app/views/layouts/application.html.haml", <<-HAML
 %html{ "xml:lang" => "en", :lang => "en", :xmlns => "http://www.w3.org/1999/xhtml" }
   %head
@@ -311,15 +327,7 @@ file "app/views/layouts/application.html.haml", <<-HAML
     != yield :head
   %body
     .header
-      - if logged_in?
-        Hello
-        != link_to h(current_user.name), edit_user_path(current_user)
-        [
-        != link_to "logout", user_session_path, :method => :delete
-        ]
-      - else
-        != link_to "login", login_path
-        != link_to "register", signup_path
+#{login_header}
     .container
       != render :partial => 'layouts/flashes'
       != yield
