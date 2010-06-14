@@ -226,7 +226,7 @@ RUBY
 commit "live validation"
 
 # FORMTASTIC
-gem "formtastic", :source => 'http://gemcutter.org'
+gem "formtastic"
 generate :formtastic
 File.open("config/initializers/formtastic.rb", "a") do |file|
   file.write <<-RUBY
@@ -239,7 +239,7 @@ commit "formtastic"
 gem 'timecop', :env => 'test'
 
 # MAIL handling in development
-gem "inaction_mailer", :lib => 'inaction_mailer/force_load', :source => 'http://gemcutter.org', :env => 'development'
+gem "inaction_mailer", :lib => 'inaction_mailer/force_load', :env => 'development'
 rakefile 'mail.rake', <<-RAKE
 namespace :mail do
   desc "Remove all files from tmp/sent_mails"
@@ -252,10 +252,10 @@ end
 RAKE
 
 # GEMS
-gem 'will_paginate', :source => 'http://gemcutter.org'
-gem 'whenever', :lib => false, :source => 'http://gemcutter.org'
-gem "ffmike-query_trace", :lib => 'query_trace', :source => 'http://gems.github.com', :env => 'development'
-gem "factory_girl", :source => 'http://gemcutter.org', :env => "test"
+gem 'will_paginate'
+gem 'whenever', :lib => false
+gem "query_trace", :lib => 'query_trace', :env => 'development'
+gem "factory_girl", :env => "test"
 
 commit "gems"
 
