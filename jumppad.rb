@@ -142,7 +142,16 @@ YAML
 
 commit "basic files"
 
-# RSPEC
+###############################################
+## GEMS #######################################
+###############################################
+
+# Time freezing it tests
+gem 'time_travel', :version => '0.1.0', :env => 'test'
+gem "factory_girl", :version => '1.3.0', :env => "test"
+
+
+## RSPEC ##
 gem 'rspec', :version => '1.3.0', :lib => false
 gem 'rspec-rails', :version => '1.3.2', :lib => false
 #gem 'mocha', :version => '0.9.8', :library => false
@@ -160,6 +169,9 @@ OPTS
 
 commit "rspec"
 
+## RCOV ##
+gem 'rcov', :version => '0.9.8', :library => false
+
 file "lib/tasks/rcov.rake", <<-RUBY
 require 'rcov/rcovtask'
 Rcov::RcovTask.new do |t|
@@ -167,10 +179,10 @@ Rcov::RcovTask.new do |t|
   # t.verbose = true     # uncomment to see the executed command
 end
 RUBY
-commit "rcov.rake"
+commit "rcov"
 
 # HAML
-gem 'haml', :version => '>= 3.0.12'
+gem 'haml', :version => '3.0.12'
 
 initializer "haml.rb", <<-RUBY
 Haml::Template.options[:escape_html] = true
@@ -178,7 +190,49 @@ RUBY
 
 commit 'haml'
 
-#
+## FORMTASTIC ##
+gem "formtastic", :version => '0.9.10'
+generate :formtastic
+File.open("config/initializers/formtastic.rb", "a") do |file|
+  file.write <<-RUBY
+Formtastic::SemanticFormBuilder.i18n_lookups_by_default = true
+  RUBY
+end
+commit "formtastic"
+
+## inaction_mailer - MAIL handling in development ##
+gem "inaction_mailer", :version => '0.6', :lib => 'inaction_mailer/force_load', :env => 'development'
+rakefile 'mail.rake', <<-RAKE
+namespace :mail do
+  desc "Remove all files from tmp/sent_mails"
+  task :clear do
+    FileList["tmp/sent_mails/*"].each do |mail_file|
+      File.delete(mail_file)
+    end
+  end
+end
+RAKE
+commit "inaction_mailer"
+
+gem 'remarkable', :version => '3.1.13', :library => false
+gem 'remarkable_rails', :version => '3.1.13', :library => false
+gsub_file "spec/spec_helper.rb", "require 'spec/rails'", <<-RUBY
+require 'spec/rails'
+require 'remarkable_rails'
+  RUBY
+commit 'remarkable'
+
+gem 'will_paginate', :version => '2.3.14'
+gem 'whenever', :version => '0.4.2', :lib => false
+gem "query_trace", :version => '0.1.1', :lib => 'query_trace', :env => 'development'
+
+gem 'inherited_resources', :version => '1.0.6'
+gem 'has_scope', :version => '0.5.0'
+gem 'responders', :version => '0.4.6'
+
+commit "gems"
+
+## HOPTOAD ##
 unless NO_HOPTOAD
 	# HOPTOAD
 	braid_plugin "git://github.com/thoughtbot/hoptoad_notifier.git"
@@ -224,40 +278,6 @@ file "config/initializers/live_validations.rb", <<-RUBY
 LiveValidations.use :jquery_validations, :default_valid_message => "", :validate_on_blur => true
 RUBY
 commit "live validation"
-
-# FORMTASTIC
-gem "formtastic"
-generate :formtastic
-File.open("config/initializers/formtastic.rb", "a") do |file|
-  file.write <<-RUBY
-Formtastic::SemanticFormBuilder.i18n_lookups_by_default = true
-  RUBY
-end
-commit "formtastic"
-
-# Time freezing it tests
-gem 'timecop', :env => 'test'
-
-# MAIL handling in development
-gem "inaction_mailer", :lib => 'inaction_mailer/force_load', :env => 'development'
-rakefile 'mail.rake', <<-RAKE
-namespace :mail do
-  desc "Remove all files from tmp/sent_mails"
-  task :clear do
-    FileList["tmp/sent_mails/*"].each do |mail_file|
-      File.delete(mail_file)
-    end
-  end
-end
-RAKE
-
-# GEMS
-gem 'will_paginate'
-gem 'whenever', :lib => false
-gem "query_trace", :lib => 'query_trace', :env => 'development'
-gem "factory_girl", :env => "test"
-
-commit "gems"
 
 # DELAYED JOB
 braid_plugin "git://github.com/collectiveidea/delayed_job.git"
@@ -359,11 +379,6 @@ commit "ruby-debug"
 
 # PLUGINS
 
-gem 'has_scope'
-gem 'inherited_resources', :version => '1.0.0'
-gem 'responders', :version => '0.4'
-commit 'inherited_resources'
-
 braid_plugin "git://github.com/relevance/log_buddy.git"
 braid_plugin "git://github.com/astrails/inherited_resources_pagination.git"
 braid_plugin "git://github.com/thoughtbot/paperclip.git"
@@ -371,7 +386,6 @@ braid_plugin "git://github.com/astrails/trusted-params.git"
 
 braid_plugin "git://github.com/astrails/restart_controller.git"
 braid_plugin "git://github.com/astrails/let_my_controller_go.git"
-
 
 unless NO_AUTH
   # AUTH
